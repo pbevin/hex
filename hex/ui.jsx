@@ -21,7 +21,7 @@ var Hex = React.createClass({
   mixins: [Reflux.listenTo(BoardStore, "onBoardChange")],
 
   getInitialState: function() {
-    return { cellSize: (this.props.height - 40) / (2 * this.props.boardSize) };
+    return { cellSize: this._findCellSize() };
   },
 
   componentWillMount: function() {
@@ -34,8 +34,8 @@ var Hex = React.createClass({
 
   render: function() {
     if (!this.state.board) return <svg/>;
-    var dx = 280;
-    var dy = 40;
+    var dx = this.props.width / 2;
+    var dy = this.dy();
     return (
       <svg style={style.svg} width={this.props.width} height={this.props.height}>
         <g transform={"translate(" + dx + " " + dy + ")"}>
@@ -78,11 +78,11 @@ var Hex = React.createClass({
     var p4 = [];
     var r32 = Math.sqrt(3)/2;
 
-    var w = size * 2;
+    var w = 0;
     var h = size * this.props.boardSize * 2 * r32;
 
     for (var i = 0; i < this.props.boardSize; i++) {
-      var x1 = size/2 - 3*i*size/2;
+      var x1 = -size/2-3*i*size/2;
       var y1 = i * size * r32;
       p1.push([x1,y1].join(","));
       p2.push([w-x1,h-y1].join(","));
@@ -119,23 +119,49 @@ var Hex = React.createClass({
 
   onMouseLeave: function(x, y) {
     this.setState({ highlight: null });
+  },
+
+  _findCellSize: function() {
+    // Width of the diamond is 3n-1 cell radii: count cells lying exactly
+    // on the major axis, and note that there is a cell radius gap between
+    // each pair.
+    //
+    // Height of the diamond is n cell heights, and each cell height is
+    // sqrt(3) times the radius.
+    //
+    // We want to leave a cell radius gap at the edges, so we add 2 to
+    // each count.
+    var n = this.props.boardSize;
+    var w = this.props.width / (3 * n + 1);
+    var h = this.props.height / (Math.sqrt(3) * n + 2);
+
+    return Math.min(w, h);
+  },
+
+  dy: function() {
+    var n = this.props.boardSize;
+    var screenHeight = this.props.height;
+    var diamondHeight = this.state.cellSize * Math.sqrt(3) * n;
+    var dy = (screenHeight - diamondHeight) / 2;
+    return dy;
   }
 });
 
 
 var Cell = React.createClass({
   render: function() {
-    var w = this.props.size * 2;
-    var h = this.props.size * Math.sqrt(3) / 2;
+    var size = this.props.size;
+    var w = size * 2;
+    var h = size * Math.sqrt(3) / 2;
     var dx = w * 3/4;
     var dy = h * 2;
-    var cx = w/2 + this.props.x * dx - this.props.y * dx;
-    var cy = h + this.props.y * dy/2 + this.props.x * dy / 2;
+    var cx = (this.props.x - this.props.y) * dx;
+    var cy = h + (this.props.x + this.props.y) * dy/2;
     var col = color[this.props.c || "yellow"];
 
     return (
       <polygon
-        points={this._points(cx, cy)}
+        points={this._points(cx, cy, size)}
         stroke="black"
         fill={col}
         onClick={this.onClick}
@@ -157,8 +183,7 @@ var Cell = React.createClass({
     this.props.onMouseLeave(this.props.x, this.props.y);
   },
 
-  _points: function(cx, cy) {
-    var size = this.props.size;
+  _points: function(cx, cy, size) {
     return [0,1,2,3,4,5].map(function(i) {
       var angle = i * 2 * Math.PI / 6;
       var x = Math.round(cx + size * Math.cos(angle));
