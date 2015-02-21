@@ -1,0 +1,24 @@
+{
+  "name": "hex",
+  "version": "0.0.1",
+  "description": "Game of Hex",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "pete@petebevin.com:git/hex"
+  },
+  "author": "Pete Bevin <pete@petebevin.com>",
+  "license": "GPLv2",
+  "dependencies": {
+    "immutable": "^3.6.2",
+    "react": "^0.12.2"
+  },
+  "devDependencies": {
+    "jsx-loader": "^0.12.2",
+    "webpack": "^1.5.3",
+    "webpack-dev-server": "^1.7.0"
+  }
+}
