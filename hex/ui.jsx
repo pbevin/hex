@@ -121,7 +121,7 @@ var Hex = React.createClass({
     this.setState({ highlight: {x: x, y: y} });
   },
 
-  onMouseLeave: function(x, y) {
+  onMouseLeave: function() {
     this.setState({ highlight: null });
   },
 
@@ -184,7 +184,7 @@ var Cell = React.createClass({
   },
 
   onMouseLeave: function() {
-    this.props.onMouseLeave(this.props.x, this.props.y);
+    this.props.onMouseLeave();
   },
 
   _points: function(cx, cy, size) {
