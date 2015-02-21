@@ -2,13 +2,48 @@
 
 var actions = require('./actions');
 
-var emptyBoard = makeEmptyBoard();
+var board = Reflux.createStore({
+  listenables: actions,
 
-function makeEmptyBoard() {
+  onPlay: function(x, y) {
+    this.board = this.board.setIn([y, x, "c"], this.player);
+    this.changePlayer();
+    this.computerPlay();
+    this.changePlayer();
+    this.trigger(this.board, this.player);
+  },
+
+  onInit: function(size) {
+    this.board = makeEmptyBoard(size);
+    this.player = "white";
+    this.trigger(this.board, this.player);
+  },
+
+  changePlayer: function() {
+    if (this.player == "white") {
+      this.player = "blue";
+    } else {
+      this.player = "white";
+    }
+  },
+
+  computerPlay: function() {
+    var emptyCells = this.board.flatten(1).filter(function(cell) { return !cell.get("c"); });
+    var i = Math.random() * emptyCells.size;
+    var cell = emptyCells.get(i).toJS();
+    this.board = this.board.setIn([cell.y, cell.x, "c"], this.player);
+  },
+
+  isWin: function(player) {
+
+  }
+});
+
+function makeEmptyBoard(size) {
   var board = [];
-  for (var row = 0; row < 4; row++) {
+  for (var row = 0; row < size; row++) {
     var curRow = [];
-    for (var col = 0; col < 5; col++) {
+    for (var col = 0; col < size; col++) {
       curRow.push({x: col, y: row, c: null});
     }
     board.push(curRow);
@@ -48,48 +83,5 @@ function linkNeighbors(board) {
     }
   }
 }
-
-var board = Reflux.createStore({
-  listenables: actions,
-
-  init: function() {
-    this.board = emptyBoard;
-    this.player = "white";
-  },
-
-  onPlay: function(x, y) {
-    this.board = this.board.setIn([y, x, "c"], this.player);
-    this.changePlayer();
-    this.computerPlay();
-    this.changePlayer();
-    this.trigger(this.board, this.player);
-  },
-
-  changePlayer: function() {
-    if (this.player == "white") {
-      this.player = "blue";
-    } else {
-      this.player = "white";
-    }
-  },
-
-  computerPlay: function() {
-    var emptyCells = this.board.flatten(1).filter(function(cell) { return !cell.get("c"); });
-    var i = Math.random() * emptyCells.size;
-    var cell = emptyCells.get(i).toJS();
-    this.board = this.board.setIn([cell.y, cell.x, "c"], this.player);
-  },
-
-  isWin: function(player) {
-
-  },
-
-  getDefaultData: function() {
-    return {
-      board: this.board,
-      player: this.player
-    };
-  }
-});
 
 module.exports = board;

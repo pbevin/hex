@@ -4,7 +4,7 @@
   "description": "Game of Hex",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server --progress --colors --port 8080",
+    "dev": "webpack-dev-server -d --progress --colors --port 8080",
     "build": "webpack -p"
   },
   "repository": {

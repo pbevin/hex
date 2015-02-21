@@ -20,22 +20,27 @@ var style = {
 var Hex = React.createClass({
   mixins: [Reflux.listenTo(BoardStore, "onBoardChange")],
 
-  width: 600,
-  height: 400,
-
   getInitialState: function() {
-    return BoardStore.getDefaultData();
+    return { cellSize: (this.props.height - 40) / (2 * this.props.boardSize) };
   },
+
+  componentWillMount: function() {
+    actions.init(this.props.boardSize);
+  },
+
   onBoardChange: function(board, player) {
     this.setState({board: board, player: player});
   },
+
   render: function() {
+    if (!this.state.board) return <svg/>;
+    var dx = 280;
+    var dy = 40;
     return (
-      <svg style={style.svg} width={this.width} height={this.height}>
-        <g transform="translate(140 40)">
+      <svg style={style.svg} width={this.props.width} height={this.props.height}>
+        <g transform={"translate(" + dx + " " + dy + ")"}>
           {this.board()}
-          {this.blueGoals()}
-          {this.whiteGoals()}
+          {this.goalLines()}
         </g>
       </svg>
     );
@@ -45,68 +50,63 @@ var Hex = React.createClass({
     return this.state.board.flatten(1).toJS().map(function(cell) {
       var col;
       if (this.state.highlight && !cell.c && this.state.highlight.x == cell.x && this.state.highlight.y == cell.y) {
-        // if (this.isNeighbor(this.state.highlight, cell)) {
         col = this.state.player;
       } else {
         col = cell.c;
       }
 
-      return <Cell key={cell.x + ":" + cell.y} x={cell.x} y={cell.y} c={col} onClick={this.onClick} onMouseEnter={this.onMouseEnter} />;
+      return (
+        <Cell
+          key={cell.x + ":" + cell.y}
+          x={cell.x}
+          y={cell.y}
+          c={col}
+          size={this.state.cellSize}
+          onClick={this.onClick}
+          onMouseEnter={this.onMouseEnter}
+          onMouseLeave={this.onMouseLeave}
+        />
+      );
     }.bind(this));
   },
 
-  // isNeighbor: function(c1, c2) {
-  //   if (!c1) return false;
-  //   var n = false;
-  //   c2.neighbors.forEach(function(c) {
-  //     if (c.x == c1.x && c.y == c1.y) {
-  //       n = true;
-  //     }
-  //   });
-  //   return n;
-  // },
+  goalLines: function() {
+    var size = this.state.cellSize;
+    var p1 = [];
+    var p2 = [];
+    var p3 = [];
+    var p4 = [];
+    var r32 = Math.sqrt(3)/2;
 
-  whiteGoals: function() {
-    var topPoints = [];
-    var bottomPoints = [];
+    var w = size * 2;
+    var h = size * this.props.boardSize * 2 * r32;
 
-    for (var i = 1; i < 11; i++) {
-      var x = 20 * (i + Math.floor((i)/2));
-      var y = (i % 4 == 0 || i % 4 == 3) ? 35 : 0;
-      topPoints.push([x,y].join(","));
+    for (var i = 0; i < this.props.boardSize; i++) {
+      var x1 = size/2 - 3*i*size/2;
+      var y1 = i * size * r32;
+      p1.push([x1,y1].join(","));
+      p2.push([w-x1,h-y1].join(","));
+      p3.push([w-x1, y1].join(","));
+      p4.push([x1, h-y1].join(","));
 
-      var y2 = (i % 4 == 0 || i % 4 == 3) ? 312 : 277;
-      bottomPoints.push([x,y2].join(","));
+      var x2 = x1 - size/2;
+      var y2 = y1 + size*r32;
+      p1.push([x2,y2].join(","));
+      p2.push([w-x2,h-y2].join(","));
+      p3.push([w-x2, y2].join(","));
+      p4.push([x2, h-y2].join(","));
     }
+    p3.unshift(p1[0]);
+    p4.unshift(p2[0]);
 
     return (
       <g>
-        <polyline stroke={color.white} strokeWidth={6} fill="none" points={topPoints.join(" ")} />
-        <polyline stroke={color.white} strokeWidth={6} fill="none" points={bottomPoints.join(" ")} />
+        <polyline stroke={color.white} strokeWidth={6} fill="none" points={p1.join(" ")} />
+        <polyline stroke={color.white} strokeWidth={6} fill="none" points={p2.join(" ")} />
+        <polyline stroke={color.blue} strokeWidth={6} fill="none" points={p3.join(" ")} />
+        <polyline stroke={color.blue} strokeWidth={6} fill="none" points={p4.join(" ")} />
       </g>
     );
-  },
-
-  blueGoals: function() {
-    var leftPoints = [];
-    var rightPoints = [];
-
-    for (var i = 0; i < 9; i++) {
-      var x = (i % 2 == 0) ? 20 : 0;
-      var y = i * 40 * Math.sqrt(3) / 2;
-      leftPoints.push([x,y].join(","));
-
-      var x2 = (i % 2 == 0) ? 300 : 320;
-      rightPoints.push([x2,y].join(","));
-    }
-
-    return (
-      <g>
-        <polyline stroke={color.blue} strokeWidth={6} fill="none" points={leftPoints.join(" ")} />
-        <polyline stroke={color.blue} strokeWidth={6} fill="none" points={rightPoints.join(" ")} />
-      </g>
-    );
-    return <polyline stroke={color.white} strokeWidth={6} fill="none" points="100,0 0,100" />;
   },
 
   onClick: function(x, y) {
@@ -115,31 +115,34 @@ var Hex = React.createClass({
 
   onMouseEnter: function(x, y) {
     this.setState({ highlight: {x: x, y: y} });
+  },
+
+  onMouseLeave: function(x, y) {
+    this.setState({ highlight: null });
   }
 });
 
 
 var Cell = React.createClass({
-  // http://www.redblobgames.com/grids/hexagons/
-  // flat topped
-  // odd-q
-
-  size: 40,
-
   render: function() {
-    var w = this.size * 2;
-    var h = this.size * Math.sqrt(3) / 2;
+    var w = this.props.size * 2;
+    var h = this.props.size * Math.sqrt(3) / 2;
     var dx = w * 3/4;
     var dy = h * 2;
-    var cx = w/2 + this.props.x * dx;
-    var cy = h + this.props.y * dy;
-    if (this.props.x & 1 == 1) {
-      cy += dy/2;
-    }
-
+    var cx = w/2 + this.props.x * dx - this.props.y * dx;
+    var cy = h + this.props.y * dy/2 + this.props.x * dy / 2;
     var col = color[this.props.c || "yellow"];
 
-    return <polygon points={this._points(cx, cy)} stroke="black" fill={col} onClick={this.onClick} onMouseEnter={this.onMouseEnter} />;
+    return (
+      <polygon
+        points={this._points(cx, cy)}
+        stroke="black"
+        fill={col}
+        onClick={this.onClick}
+        onMouseEnter={this.onMouseEnter}
+        onMouseLeave={this.onMouseLeave}
+      />
+    );
   },
 
   onClick: function() {
@@ -150,8 +153,12 @@ var Cell = React.createClass({
     this.props.onMouseEnter(this.props.x, this.props.y);
   },
 
+  onMouseLeave: function() {
+    this.props.onMouseLeave(this.props.x, this.props.y);
+  },
+
   _points: function(cx, cy) {
-    var size = this.size;
+    var size = this.props.size;
     return [0,1,2,3,4,5].map(function(i) {
       var angle = i * 2 * Math.PI / 6;
       var x = Math.round(cx + size * Math.cos(angle));
