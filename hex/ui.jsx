@@ -33,6 +33,7 @@ var Hex = React.createClass({
   },
 
   onBoardChange: function(state) {
+    console.log(state);
     this.setState(state);
   },
 
@@ -45,6 +46,7 @@ var Hex = React.createClass({
         <g transform={"translate(" + dx + " " + dy + ")"}>
           {this.board()}
           {this.goalLines()}
+          {this.winner()}
         </g>
       </svg>
     );
@@ -53,7 +55,9 @@ var Hex = React.createClass({
   board: function() {
     return this.state.board.flatten(1).toJS().map(function(cell) {
       var col;
-      if (this.state.highlight && !cell.c && this.state.highlight.x == cell.x && this.state.highlight.y == cell.y) {
+      if (this.state.winner) {
+        col = cell.c;
+      } else if (this.state.highlight && !cell.c && this.state.highlight.x == cell.x && this.state.highlight.y == cell.y) {
         col = this.state.player;
       } else {
         col = cell.c;
@@ -113,7 +117,31 @@ var Hex = React.createClass({
     );
   },
 
+  winner: function() {
+    if (!this.state.winner) {
+      return;
+    }
+
+    var props = {
+      x: "0",
+      y: this.props.height / 2 - this.dy() + 37,
+      fill: "#f09",
+      fontFamily: "Verdana",
+      fontSize: "100px",
+      textAnchor: "middle"
+    };
+
+
+    var y = this.props.height / 2 - 5 - this.dy();
+    return (
+      <g>
+        <text {...props}>YOU WIN!</text>
+      </g>
+    );
+  },
+
   onClick: function(x, y) {
+    if (this.state.winner) return;
     actions.play(x, y);
   },
 
