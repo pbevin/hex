@@ -3,6 +3,7 @@
 var Reflux = require('reflux');
 var BoardStore = require('./board_store');
 var actions = require('./actions')
+var PureRenderMixin = require('react/addons').addons.PureRenderMixin;
 
 var color = {
   blue: "#66E",
@@ -18,7 +19,10 @@ var style = {
 };
 
 var Hex = React.createClass({
-  mixins: [Reflux.listenTo(BoardStore, "onBoardChange")],
+  mixins: [
+    PureRenderMixin,
+    Reflux.listenTo(BoardStore, "onBoardChange")
+  ],
 
   getInitialState: function() {
     return { cellSize: this._findCellSize() };
@@ -28,8 +32,8 @@ var Hex = React.createClass({
     actions.init(this.props.boardSize);
   },
 
-  onBoardChange: function(board, player) {
-    this.setState({board: board, player: player});
+  onBoardChange: function(state) {
+    this.setState(state);
   },
 
   render: function() {

@@ -10,13 +10,19 @@ var board = Reflux.createStore({
     this.changePlayer();
     this.computerPlay();
     this.changePlayer();
-    this.trigger(this.board, this.player);
+    this.findWinner();
+    this.emit();
   },
 
   onInit: function(size) {
     this.board = makeEmptyBoard(size);
     this.player = "white";
-    this.trigger(this.board, this.player);
+    this.winner = null;
+    this.emit();
+  },
+
+  emit: function() {
+    this.trigger({ board: this.board, player: this.player, winner: this.winner });
   },
 
   changePlayer: function() {
@@ -34,8 +40,10 @@ var board = Reflux.createStore({
     this.board = this.board.setIn([cell.y, cell.x, "c"], this.player);
   },
 
-  isWin: function(player) {
-
+  findWinner: function(player) {
+    if (checkWinner(this.board, "white")) {
+      this.winner = "white";
+    }
   }
 });
 
@@ -81,6 +89,44 @@ function linkNeighbors(board) {
 
       board[row][col].neighbors = neighborCells;
     }
+  }
+}
+
+function checkWinner(board, player) {
+  var startCells = board.
+    map(function(row) { return row.first(); }).
+    filter(function(cell) { return cell.get("c") == player; });
+
+  // Start cells may be connected to each other, which will make this a bit slower
+  var found = false;
+  startCells.forEach(function(startCell) {
+    if (findPath(board, player, startCell, Immutable.Set(), board.size - 1)) {
+      found = true;
+      return false;
+    }
+  });
+
+  return found;
+
+  function findPath(board, player, cell, visited, targetColumn) {
+    if (cell.get("x") == targetColumn) {
+      return true;
+    }
+    var found = false;
+
+    cell.get("neighbors").forEach(function(neighbor) {
+      var nextCell = board.getIn([neighbor.get("y"), neighbor.get("x")]);
+      if (nextCell.get("c") == player) {
+        if (!visited.contains(nextCell)) {
+          if (findPath(board, player, nextCell, visited.add(cell), targetColumn)) {
+            found = true;
+            return false;  // break
+          } else {
+          }
+        }
+      }
+    });
+    return found;
   }
 }
 
