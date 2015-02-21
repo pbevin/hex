@@ -33,7 +33,6 @@ var Hex = React.createClass({
   },
 
   onBoardChange: function(state) {
-    console.log(state);
     this.setState(state);
   },
 

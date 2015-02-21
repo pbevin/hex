@@ -18,18 +18,10 @@ function linkNeighbors(board) {
   var board_width  = board[0].length;
   for (var row = 0; row < board_height; row++) {
     for (var col = 0; col < board_width; col++) {
-      var neighbors;
-      if ((col & 1) == 0) {
-        neighbors = [
-          [col+1, row], [col+1, row-1], [col, row-1],
-          [col-1, row-1], [col-1, row], [col, row+1]
-        ]
-      } else {
-        neighbors = [
-          [col+1, row+1], [col+1, row], [col, row-1],
-          [col-1, row], [col-1, row+1], [col, row+1]
-        ]
-      }
+      var neighbors = [
+        [col+1, row], [col+1, row+1], [col, row-1],
+        [col-1, row-1], [col-1, row], [col, row+1]
+      ]
 
       var neighborCells = neighbors.map(function(p) {
         return { x: p[0], y: p[1] };
