@@ -8,6 +8,8 @@ var board = Reflux.createStore({
   listenables: actions,
 
   onPlay: function(x, y) {
+    var cell = this.board.getIn([y, x]);
+    if (cell.get("c")) return;
     this.board = this.board.setIn([y, x, "c"], this.player);
     this.changePlayer();
     this.computerPlay();
