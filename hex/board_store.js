@@ -1,8 +1,6 @@
-"use strict";
-
-var actions = require('./actions');
-var checkWinner = require('./check_winner');
-var makeEmptyBoard = require('./empty_board');
+import actions from './actions';
+import checkWinner from './check_winner';
+import makeEmptyBoard from './empty_board';
 
 var board = Reflux.createStore({
   listenables: actions,
@@ -51,4 +49,4 @@ var board = Reflux.createStore({
   }
 });
 
-module.exports = board;
+export default board;

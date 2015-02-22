@@ -36,4 +36,4 @@ function checkWinner(board, player) {
   }
 }
 
-module.exports = checkWinner;
+export default checkWinner;

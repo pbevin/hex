@@ -1,9 +1,9 @@
 "use strict";
 
-var Reflux = require('reflux');
-var BoardStore = require('./board_store');
-var actions = require('./actions')
-var PureRenderMixin = require('react/addons').addons.PureRenderMixin;
+
+let PureRenderMixin = React.addons.PureRenderMixin
+import BoardStore from './board_store';
+import actions from './actions';
 
 var color = {
   blue: "#66E",
@@ -224,4 +224,4 @@ var Cell = React.createClass({
   }
 });
 
-module.exports = Hex;
+export default Hex;

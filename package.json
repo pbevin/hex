@@ -19,6 +19,8 @@
     "reflux": "^0.2.5"
   },
   "devDependencies": {
+    "babel-core": "^4.4.5",
+    "babel-loader": "^4.0.0",
     "http-server": "^0.7.4",
     "jsx-loader": "^0.12.2",
     "webpack": "^1.5.3",

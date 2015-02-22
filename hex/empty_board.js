@@ -35,4 +35,4 @@ function linkNeighbors(board) {
   }
 }
 
-module.exports = makeEmptyBoard;
+export default makeEmptyBoard;
