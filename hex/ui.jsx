@@ -1,6 +1,5 @@
 "use strict";
 
-
 let PureRenderMixin = React.addons.PureRenderMixin
 import BoardStore from './board_store';
 import actions from './actions';
@@ -24,19 +23,19 @@ var Hex = React.createClass({
     Reflux.listenTo(BoardStore, "onBoardChange")
   ],
 
-  getInitialState: function() {
+  getInitialState() {
     return { cellSize: this._findCellSize() };
   },
 
-  componentWillMount: function() {
+  componentWillMount() {
     actions.init(this.props.boardSize);
   },
 
-  onBoardChange: function(state) {
+  onBoardChange(state) {
     this.setState(state);
   },
 
-  render: function() {
+  render() {
     if (!this.state.board) return <svg/>;
     var dx = this.props.width / 2;
     var dy = this.dy();
@@ -51,7 +50,7 @@ var Hex = React.createClass({
     );
   },
 
-  board: function() {
+  board() {
     return this.state.board.toJS().map(function(cell) {
       var col;
       if (this.state.winner) {
@@ -77,7 +76,7 @@ var Hex = React.createClass({
     }.bind(this));
   },
 
-  goalLines: function() {
+  goalLines() {
     var size = this.state.cellSize;
     var p1 = [];
     var p2 = [];
@@ -116,7 +115,7 @@ var Hex = React.createClass({
     );
   },
 
-  winner: function() {
+  winner() {
     if (!this.state.winner) {
       return;
     }
@@ -139,20 +138,20 @@ var Hex = React.createClass({
     );
   },
 
-  onClick: function(x, y) {
+  onClick(x, y) {
     if (this.state.winner) return;
     actions.play(x, y);
   },
 
-  onMouseEnter: function(x, y) {
+  onMouseEnter(x, y) {
     this.setState({ highlight: {x: x, y: y} });
   },
 
-  onMouseLeave: function() {
+  onMouseLeave() {
     this.setState({ highlight: null });
   },
 
-  _findCellSize: function() {
+  _findCellSize() {
     // Width of the diamond is 3n-1 cell radii: count cells lying exactly
     // on the major axis, and note that there is a cell radius gap between
     // each pair.
@@ -169,7 +168,7 @@ var Hex = React.createClass({
     return Math.min(w, h);
   },
 
-  dy: function() {
+  dy() {
     var n = this.props.boardSize;
     var screenHeight = this.props.height;
     var diamondHeight = this.state.cellSize * Math.sqrt(3) * n;
@@ -180,7 +179,7 @@ var Hex = React.createClass({
 
 
 var Cell = React.createClass({
-  render: function() {
+  render() {
     var size = this.props.size;
     var w = size * 2;
     var h = size * Math.sqrt(3) / 2;
@@ -202,19 +201,19 @@ var Cell = React.createClass({
     );
   },
 
-  onClick: function() {
+  onClick() {
     this.props.onClick(this.props.x, this.props.y);
   },
 
-  onMouseEnter: function() {
+  onMouseEnter() {
     this.props.onMouseEnter(this.props.x, this.props.y);
   },
 
-  onMouseLeave: function() {
+  onMouseLeave() {
     this.props.onMouseLeave();
   },
 
-  _points: function(cx, cy, size) {
+  _points(cx, cy, size) {
     return [0,1,2,3,4,5].map(function(i) {
       var angle = i * 2 * Math.PI / 6;
       var x = Math.round(cx + size * Math.cos(angle));

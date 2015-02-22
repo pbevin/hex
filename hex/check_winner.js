@@ -10,7 +10,6 @@ function checkWinner(board, player, size) {
 
     return cell.get("neighbors").some(function(neighbor) {
       var nextCell = board.get(neighbor);
-      console.log(nextCell.toJS());
       if (nextCell.get("c") == player) {
         if (!visited.contains(nextCell)) {
           if (findPath(board, player, nextCell, visited.add(cell), targetColumn)) {
