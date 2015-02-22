@@ -128,8 +128,6 @@ var Hex = React.createClass({
       textAnchor: "middle"
     };
 
-
-    var y = this.props.height / 2 - 5 - this.dy();
     return (
       <g>
         <text {...props}>YOU WIN!</text>

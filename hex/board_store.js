@@ -43,7 +43,7 @@ var board = Reflux.createStore({
     this.board = this.board.takeCell(cell, this.player);
   },
 
-  findWinner(player) {
+  findWinner() {
     if (checkWinner(this.board, "white", this.size)) {
       this.winner = "white";
     }
