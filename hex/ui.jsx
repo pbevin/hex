@@ -53,9 +53,8 @@ var Hex = React.createClass({
   board() {
     return this.state.board.toJS().map(function(cell) {
       var col;
-      if (this.state.winner) {
-        col = cell.c;
-      } else if (this.state.highlight && !cell.c && this.state.highlight.x == cell.x && this.state.highlight.y == cell.y) {
+
+      if (this._isHighlighting(cell)) {
         col = this.state.player;
       } else {
         col = cell.c;
@@ -174,6 +173,13 @@ var Hex = React.createClass({
     var diamondHeight = this.state.cellSize * Math.sqrt(3) * n;
     var dy = (screenHeight - diamondHeight) / 2;
     return dy;
+  },
+
+  _isHighlighting(cell) {
+    if (this.state.winner) return false;
+    if (!this.state.highlight) return false;
+    if (cell.c) return false;
+    return this.state.highlight.x == cell.x && this.state.highlight.y == cell.y;
   }
 });
 
