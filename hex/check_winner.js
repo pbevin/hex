@@ -1,38 +1,25 @@
-function checkWinner(board, player) {
-  var startCells = board.
-    map(function(row) { return row.first(); }).
-    filter(function(cell) { return cell.get("c") == player; });
-
+function checkWinner(board, player, size) {
+  let startCells = board.filter(cell => cell.get("x") == 0 && cell.get("c") == player);
   // Start cells may be connected to each other, which will make this a bit slower
-  var found = false;
-  startCells.forEach(function(startCell) {
-    if (findPath(board, player, startCell, Immutable.Set(), board.size - 1)) {
-      found = true;
-      return false;
-    }
-  });
-
-  return found;
+  return startCells.some(startCell => findPath(board, player, startCell, Immutable.Set(), size - 1));
 
   function findPath(board, player, cell, visited, targetColumn) {
     if (cell.get("x") == targetColumn) {
       return true;
     }
-    var found = false;
 
-    cell.get("neighbors").forEach(function(neighbor) {
-      var nextCell = board.getIn([neighbor.get("y"), neighbor.get("x")]);
+    return cell.get("neighbors").some(function(neighbor) {
+      var nextCell = board.get(neighbor);
+      console.log(nextCell.toJS());
       if (nextCell.get("c") == player) {
         if (!visited.contains(nextCell)) {
           if (findPath(board, player, nextCell, visited.add(cell), targetColumn)) {
-            found = true;
-            return false;  // break
-          } else {
+            return true;  // break
           }
         }
       }
+      return false;
     });
-    return found;
   }
 }
 

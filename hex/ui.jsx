@@ -52,7 +52,7 @@ var Hex = React.createClass({
   },
 
   board: function() {
-    return this.state.board.flatten(1).toJS().map(function(cell) {
+    return this.state.board.toJS().map(function(cell) {
       var col;
       if (this.state.winner) {
         col = cell.c;

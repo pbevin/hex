@@ -6,9 +6,10 @@ var board = Reflux.createStore({
   listenables: actions,
 
   onPlay: function(x, y) {
-    var cell = this.board.getIn([y, x]);
+    var id = y * this.size + x;
+    var cell = this.board.get(id);
     if (cell.get("c")) return;
-    this.board = this.board.setIn([y, x, "c"], this.player);
+    this.board = this.board.update(id, cell => cell.set("c", this.player));
     this.changePlayer();
     this.computerPlay();
     this.changePlayer();
@@ -17,6 +18,7 @@ var board = Reflux.createStore({
   },
 
   onInit: function(size) {
+    this.size = size;
     this.board = makeEmptyBoard(size);
     this.player = "white";
     this.winner = null;
@@ -36,14 +38,15 @@ var board = Reflux.createStore({
   },
 
   computerPlay: function() {
-    var emptyCells = this.board.flatten(1).filter(function(cell) { return !cell.get("c"); });
+    var emptyCells = this.board.filter(cell => !cell.get("c"));
     var i = Math.random() * emptyCells.size;
     var cell = emptyCells.get(i).toJS();
-    this.board = this.board.setIn([cell.y, cell.x, "c"], this.player);
+    var id = cell.y * this.size + cell.x;
+    this.board = this.board.update(id, cell => cell.set("c", this.player));
   },
 
   findWinner: function(player) {
-    if (checkWinner(this.board, "white")) {
+    if (checkWinner(this.board, "white", this.size)) {
       this.winner = "white";
     }
   }

@@ -1,37 +1,33 @@
 function makeEmptyBoard(size) {
-  var board = [];
-  for (var row = 0; row < size; row++) {
-    var curRow = [];
-    for (var col = 0; col < size; col++) {
-      curRow.push({x: col, y: row, c: null});
+  let board = Immutable.List();
+  for (let row = 0; row < size; row++) {
+    for (let col = 0; col < size; col++) {
+      let cell = Immutable.fromJS({
+        x: col,
+        y: row,
+        c: null,
+        neighbors: linkNeighbors(row, col)
+      });
+      board = board.push(cell);
     }
-    board.push(curRow);
   }
 
-  linkNeighbors(board);
-
   return Immutable.fromJS(board);
-}
 
-function linkNeighbors(board) {
-  var board_height = board.length;
-  var board_width  = board[0].length;
-  for (var row = 0; row < board_height; row++) {
-    for (var col = 0; col < board_width; col++) {
-      var neighbors = [
-        [col+1, row], [col+1, row+1], [col, row-1],
-        [col-1, row-1], [col-1, row], [col, row+1]
-      ]
+  function inBounds([col, row]) {
+    return (0 <= row && row < size && 0 <= col && col < size);
+  }
 
-      var neighborCells = neighbors.map(function(p) {
-        return { x: p[0], y: p[1] };
-      }).filter(function(p) {
-        return 0 <= p.x && p.x < board_width &&
-          0 <= p.y && p.y < board_height;
-      });
+  function linkNeighbors(row, col) {
+    let neighbors = [
+      [col-1, row-1], [col-1, row],
+      [col, row-1], [col, row+1],
+      [col+1, row], [col+1, row+1]
+    ];
 
-      board[row][col].neighbors = neighborCells;
-    }
+    return neighbors.
+      filter(inBounds).
+      map(([x,y]) => y * size + x );
   }
 }
 
