@@ -1,15 +1,15 @@
 import actions from './actions';
 import checkWinner from './check_winner';
 import makeEmptyBoard from './empty_board';
+import Board from './board';
 
 var board = Reflux.createStore({
   listenables: actions,
 
   onPlay(x, y) {
-    var id = y * this.size + x;
-    var cell = this.board.get(id);
+    var cell = this.board.cellAt(y, x);
     if (cell.get("c")) return;
-    this.board = this.board.update(id, cell => cell.set("c", this.player));
+    this.board = this.board.takeCell(cell, this.player);
     this.changePlayer();
     this.computerPlay();
     this.changePlayer();
@@ -18,8 +18,7 @@ var board = Reflux.createStore({
   },
 
   onInit(size) {
-    this.size = size;
-    this.board = makeEmptyBoard(size);
+    this.board = new Board(makeEmptyBoard(size), size);
     this.player = "white";
     this.winner = null;
     this.emit();
@@ -38,11 +37,10 @@ var board = Reflux.createStore({
   },
 
   computerPlay() {
-    var emptyCells = this.board.filter(cell => !cell.get("c"));
+    var emptyCells = this.board.emptyCells();
     var i = Math.random() * emptyCells.size;
-    var cell = emptyCells.get(i).toJS();
-    var id = cell.y * this.size + cell.x;
-    this.board = this.board.update(id, cell => cell.set("c", this.player));
+    var cell = emptyCells.get(i);
+    this.board = this.board.takeCell(cell, this.player);
   },
 
   findWinner(player) {

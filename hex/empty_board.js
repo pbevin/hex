@@ -3,6 +3,7 @@ function makeEmptyBoard(size) {
   for (let row = 0; row < size; row++) {
     for (let col = 0; col < size; col++) {
       let cell = Immutable.fromJS({
+        id: row * size + col,
         x: col,
         y: row,
         c: null,
