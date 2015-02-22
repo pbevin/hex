@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Play Hex</title>
     <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.12.2/react-with-addons.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.12.2/react-with-addons.js"></script>
     <script src="//cdn.jsdelivr.net/refluxjs/0.2.5/reflux.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/immutable/3.6.2/immutable.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="hex.css">
   </head>
   <body>
-
     <div class="container">
       <div class="col-md-8">
         <div id="app"></div>
@@ -25,8 +24,13 @@
           You play white. Try and make a line from top left to bottom right
           while preventing the computer from making a line in the other direction.
         </p>
-    </div><!-- /.container -->
-
+        <h2>Links</h2>
+        <ul>
+          <li><a href="http://www.cameronius.com/games/hex/">Cameron Browne's Hex Page</a></li>
+          <li><a href="http://home.fuse.net/swmeyers/y-hex.pdf">Search and Evaluation in Hex</a></li>
+        </ul>
+      </div>
+    </div>
 
     <div id="sidebar"></div>
     <script type="text/javascript" src="bundle.js"></script>
