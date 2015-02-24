@@ -30,7 +30,7 @@ var Hex = React.createClass({
     var dy = this.dy();
     return (
       <svg style={style.svg} width={this.props.width} height={this.props.height}>
-        <g transform={"translate(" + dx + " " + dy + ")"}>
+        <g transform={`translate(${dx} ${dy})`}>
           {this.board()}
           {this.goalLines()}
           {this.winner()}
@@ -51,7 +51,7 @@ var Hex = React.createClass({
 
       return (
         <Cell
-          key={cell.x + ":" + cell.y}
+          key={cell.id}
           x={cell.x}
           y={cell.y}
           c={col}
