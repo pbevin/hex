@@ -18,25 +18,14 @@ var style = {
 };
 
 var Hex = React.createClass({
-  mixins: [
-    PureRenderMixin,
-    Reflux.listenTo(BoardStore, "onBoardChange")
-  ],
+  mixins: [ PureRenderMixin ],
 
   getInitialState() {
-    return { cellSize: this._findCellSize() };
-  },
-
-  componentWillMount() {
-    actions.init(this.props.boardSize);
-  },
-
-  onBoardChange(state) {
-    this.setState(state);
+    return { };
   },
 
   render() {
-    if (!this.state.board) return <svg/>;
+    if (!this.props.board) return <svg/>;
     var dx = this.props.width / 2;
     var dy = this.dy();
     return (
@@ -51,11 +40,11 @@ var Hex = React.createClass({
   },
 
   board() {
-    return this.state.board.toJS().map(function(cell) {
+    return this.props.board.toJS().map(function(cell) {
       var col;
 
       if (this._isHighlighting(cell)) {
-        col = this.state.player;
+        col = this.props.player;
       } else {
         col = cell.c;
       }
@@ -66,7 +55,7 @@ var Hex = React.createClass({
           x={cell.x}
           y={cell.y}
           c={col}
-          size={this.state.cellSize}
+          size={this._findCellSize()}
           onClick={this.onClick}
           onMouseEnter={this.onMouseEnter}
           onMouseLeave={this.onMouseLeave}
@@ -76,7 +65,7 @@ var Hex = React.createClass({
   },
 
   goalLines() {
-    var size = this.state.cellSize;
+    var size = this._findCellSize();
     var p1 = [];
     var p2 = [];
     var p3 = [];
@@ -84,9 +73,9 @@ var Hex = React.createClass({
     var r32 = Math.sqrt(3)/2;
 
     var w = 0;
-    var h = size * this.props.boardSize * 2 * r32;
+    var h = size * this.props.board.size * 2 * r32;
 
-    for (var i = 0; i < this.props.boardSize; i++) {
+    for (var i = 0; i < this.props.board.size; i++) {
       var x1 = -size/2-3*i*size/2;
       var y1 = i * size * r32;
       p1.push([x1,y1].join(","));
@@ -115,7 +104,7 @@ var Hex = React.createClass({
   },
 
   winner() {
-    if (!this.state.winner) {
+    if (!this.props.winner) {
       return;
     }
 
@@ -136,7 +125,7 @@ var Hex = React.createClass({
   },
 
   onClick(x, y) {
-    if (this.state.winner) return;
+    if (this.props.winner) return;
     actions.play(x, y);
   },
 
@@ -158,7 +147,7 @@ var Hex = React.createClass({
     //
     // We want to leave a cell radius gap at the edges, so we add 2 to
     // each count.
-    var n = this.props.boardSize;
+    var n = this.props.board.size;
     var w = this.props.width / (3 * n + 1);
     var h = this.props.height / (Math.sqrt(3) * n + 2);
 
@@ -166,15 +155,15 @@ var Hex = React.createClass({
   },
 
   dy() {
-    var n = this.props.boardSize;
+    var n = this.props.board.size;
     var screenHeight = this.props.height;
-    var diamondHeight = this.state.cellSize * Math.sqrt(3) * n;
+    var diamondHeight = this._findCellSize() * Math.sqrt(3) * n;
     var dy = (screenHeight - diamondHeight) / 2;
     return dy;
   },
 
   _isHighlighting(cell) {
-    if (this.state.winner) return false;
+    if (this.props.winner) return false;
     if (!this.state.highlight) return false;
     if (cell.c) return false;
     return this.state.highlight.x == cell.x && this.state.highlight.y == cell.y;
